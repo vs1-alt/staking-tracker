@@ -10,10 +10,13 @@
     body { background: #0f172a; color: #e2e8f0; font-family: system-ui, sans-serif; padding: 20px; }
     h1 { font-size: 22px; margin-bottom: 4px; }
     .sub { color: #64748b; font-size: 13px; margin-bottom: 20px; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
     .tab { background: #1e293b; color: #94a3b8; border: none; border-radius: 6px;
            padding: 8px 16px; cursor: pointer; font-size: 13px; font-weight: 600; }
     .tab.active { background: #6366f1; color: #fff; }
+    .refresh-btn { margin-left: auto; background: #0ea5e9; color: #fff; border: none;
+           border-radius: 6px; padding: 8px 16px; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .refresh-btn:disabled { opacity: .5; cursor: wait; }
     .coins { display: flex; gap: 8px; margin-bottom: 16px; }
     .coin { border: none; border-radius: 6px; padding: 6px 14px;
             cursor: pointer; font-weight: 700; font-size: 13px; color: #fff; }
@@ -31,6 +34,11 @@
     .note { font-size: 11px; color: #475569; text-align: center; margin-top: 8px; }
     .error { background: #7f1d1d; color: #fca5a5; padding: 12px; border-radius: 8px; margin-bottom: 16px; }
     .loader { text-align:center; padding: 60px; color: #64748b; font-size: 16px; }
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #0ea5e9; color: #fff;
+             padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+             opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 999; }
+    .toast.show { opacity: 1; }
+    .toast.error { background: #ef4444; }
   </style>
 </head>
 <body>
@@ -42,11 +50,19 @@
   <button class="tab active" onclick="setView('chart')">📊 Verlauf</button>
   <button class="tab" onclick="setView('today')">🏆 Heute</button>
   <button class="tab" onclick="setView('table')">📋 Tabelle</button>
+  <button class="refresh-btn" id="refreshBtn" onclick="triggerWorkflow()">🔄 Jetzt aktualisieren</button>
 </div>
 
 <div id="app"><div class="loader">⏳ Lade Daten…</div></div>
+<div class="toast" id="toast"></div>
 
 <script>
+// ── KONFIGURATION – hier anpassen ──────────────────────────
+const GITHUB_USER  = "vs1-alt";           // Dein GitHub Username
+const GITHUB_REPO  = "staking-tracker";   // Dein Repository Name
+const GITHUB_TOKEN = "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";   // Token hier einfügen
+// ──────────────────────────────────────────────────────────
+
 const COINS = ["USDT","USDC","FDUSD"];
 const COLORS = { USDT:"#26a17b", USDC:"#2775ca", FDUSD:"#f0b90b" };
 const EX_COLORS = ["#6366f1","#f59e0b","#10b981","#ef4444","#3b82f6","#8b5cf6","#ec4899","#14b8a6","#f97316","#84cc16"];
@@ -54,6 +70,44 @@ let history = [], view = "chart", activeCoin = "USDT", charts = {};
 
 function fmt(d) { return new Date(d).toLocaleDateString("de-CH",{day:"2-digit",month:"2-digit"}); }
 function destroyChart(id) { if(charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (isError ? " error" : "");
+  setTimeout(() => t.className = "toast", 3500);
+}
+
+async function triggerWorkflow() {
+  const btn = document.getElementById("refreshBtn");
+  btn.disabled = true;
+  btn.textContent = "⏳ Wird gestartet…";
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/actions/workflows/fetch.yml/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${GITHUB_TOKEN}`,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ref: "main" })
+      }
+    );
+    if (res.status === 204) {
+      showToast("✅ Workflow gestartet! Daten in ~60 Sek. verfügbar.");
+      setTimeout(() => location.reload(), 75000);
+    } else {
+      const err = await res.json();
+      showToast("❌ Fehler: " + (err.message || res.status), true);
+    }
+  } catch(e) {
+    showToast("❌ Netzwerkfehler: " + e.message, true);
+  }
+  btn.disabled = false;
+  btn.textContent = "🔄 Jetzt aktualisieren";
+}
 
 async function loadData() {
   try {
@@ -65,7 +119,7 @@ async function loadData() {
       `Top 10 Börsen · USDT, USDC, FDUSD · ${history.length} Einträge · Letzter Abruf: ${fmt(last.date)}`;
     render();
   } catch(e) {
-    document.getElementById("app").innerHTML = `<div class="error">⚠️ ${e.message} – Stelle sicher, dass GitHub Pages aktiv ist und data.json existiert.</div>`;
+    document.getElementById("app").innerHTML = `<div class="error">⚠️ ${e.message}</div>`;
   }
 }
 
@@ -91,17 +145,14 @@ function renderChart() {
   const exchanges = Object.keys(history[0].rates);
   const labels = history.map(h => fmt(h.date));
   const datasets = exchanges.map((ex,i) => ({
-    label: ex,
-    data: history.map(h => h.rates[ex]?.[activeCoin] ?? null),
+    label: ex, data: history.map(h => h.rates[ex]?.[activeCoin] ?? null),
     borderColor: EX_COLORS[i], backgroundColor: EX_COLORS[i]+"33",
     tension: 0.3, pointRadius: 3, borderWidth: 2
   }));
-
   document.getElementById("app").innerHTML = `
     <div class="coins" id="coinBtns"></div>
     <div class="card"><canvas id="lineChart"></canvas></div>
     <div class="note">* Echte API-Daten via GitHub Actions – täglich um 08:00 Uhr aktualisiert</div>`;
-
   const cb = document.getElementById("coinBtns");
   COINS.forEach(c => {
     const b = document.createElement("button");
@@ -109,12 +160,11 @@ function renderChart() {
     b.style.background=COLORS[c]; b.style.opacity=c===activeCoin?"1":"0.45";
     b.onclick=()=>setCoin(c); cb.appendChild(b);
   });
-
   destroyChart("line");
   charts["line"] = new Chart(document.getElementById("lineChart"), {
     type:"line", data:{labels, datasets},
     options:{ responsive:true, plugins:{legend:{labels:{color:"#94a3b8",font:{size:11}}}},
-      scales:{ x:{ticks:{color:"#94a3b8"}}, y:{ticks:{color:"#94a3b8",callback:v=>v+"%"}, min:0, max:12} }}
+      scales:{ x:{ticks:{color:"#94a3b8"}}, y:{ticks:{color:"#94a3b8",callback:v=>v+"%"}, min:0, max:12}}}
   });
 }
 
@@ -125,26 +175,20 @@ function renderToday() {
     label: c, backgroundColor: COLORS[c],
     data: exchanges.map(ex => entry.rates[ex]?.[c] ?? 0)
   }));
-
   const sorted = [...exchanges].sort((a,b)=>(entry.rates[b]?.USDT||0)-(entry.rates[a]?.USDT||0));
   const medals = ["🥇","🥈","🥉"];
-
   document.getElementById("app").innerHTML = `
     <div class="card"><canvas id="barChart"></canvas></div>
     <div class="top3">
       <div style="font-size:13px;color:#94a3b8;margin-bottom:8px">🏅 Top 3 heute (USDT)</div>
       ${sorted.slice(0,3).map((ex,i)=>`
-        <div class="top3-item">
-          <span>${medals[i]} ${ex}</span>
-          <span style="color:${COLORS.USDT};font-weight:700">${entry.rates[ex]?.USDT ?? "–"}% p.a.</span>
-        </div>`).join("")}
+        <div class="top3-item"><span>${medals[i]} ${ex}</span>
+        <span style="color:${COLORS.USDT};font-weight:700">${entry.rates[ex]?.USDT ?? "–"}% p.a.</span></div>`).join("")}
     </div>`;
-
   destroyChart("bar");
   charts["bar"] = new Chart(document.getElementById("barChart"), {
     type:"bar", data:{labels:exchanges, datasets},
-    options:{ responsive:true,
-      plugins:{legend:{labels:{color:"#94a3b8",font:{size:11}}}},
+    options:{ responsive:true, plugins:{legend:{labels:{color:"#94a3b8",font:{size:11}}}},
       scales:{ x:{ticks:{color:"#94a3b8",maxRotation:35}}, y:{ticks:{color:"#94a3b8",callback:v=>v+"%"},min:0,max:12}}}
   });
 }
@@ -154,21 +198,15 @@ function renderTable() {
   const exchanges = Object.keys(history[0].rates);
   const headers = last7.map(h=>`<th colspan="3">${fmt(h.date)}</th>`).join("");
   const subheads = last7.map(()=>COINS.map(c=>`<th style="color:${COLORS[c]};font-size:10px">${c}</th>`).join("")).join("");
-  const rows = exchanges.map((ex,i)=>{
+  const rows = exchanges.map(ex => {
     const cells = last7.map(h=>COINS.map(c=>`<td style="color:${COLORS[c]}">${h.rates[ex]?.[c]??'–'}%</td>`).join("")).join("");
     return `<tr><td class="exname">${ex}</td>${cells}</tr>`;
   }).join("");
-
   document.getElementById("app").innerHTML = `
-    <div style="overflow-x:auto">
-      <table>
-        <thead>
-          <tr><th class="left">Börse</th>${headers}</tr>
-          <tr><th></th>${subheads}</tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th class="left">Börse</th>${headers}</tr><tr><th></th>${subheads}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
 }
 
 loadData();
