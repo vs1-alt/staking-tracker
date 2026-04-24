@@ -83,29 +83,29 @@
         "FDUSD": null
       },
       "Coinbase": {
-        "USDT": 4.94,
-        "USDC": 5.78,
-        "FDUSD": 3.33
+        "USDT": 2.74,
+        "USDC": 6.77,
+        "FDUSD": 4.34
       },
       "Gate.io": {
-        "USDT": 4.85,
-        "USDC": 5.23,
-        "FDUSD": 3.27
+        "USDT": 6.92,
+        "USDC": 2.03,
+        "FDUSD": 3.98
       },
       "Bitfinex": {
-        "USDT": 6.06,
-        "USDC": 2.45,
-        "FDUSD": 1.36
+        "USDT": 6.91,
+        "USDC": 6.76,
+        "FDUSD": 1.02
       },
       "Huobi": {
-        "USDT": 6.78,
-        "USDC": 3.56,
-        "FDUSD": 4.38
+        "USDT": 4.09,
+        "USDC": 6.4,
+        "FDUSD": 1.73
       },
       "Crypto.com": {
-        "USDT": 2.75,
-        "USDC": 3.94,
-        "FDUSD": 1.26
+        "USDT": 5.45,
+        "USDC": 5.17,
+        "FDUSD": 1.83
       }
     }
   }
