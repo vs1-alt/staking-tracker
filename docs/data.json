@@ -3903,5 +3903,60 @@
         "FDUSD": 3.78
       }
     }
+  },
+  {
+    "date": "2026-07-04",
+    "rates": {
+      "Binance": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "Kraken": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "KuCoin": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "Bybit": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "OKX": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "Coinbase": {
+        "USDT": 5.7,
+        "USDC": 5.95,
+        "FDUSD": 1.13
+      },
+      "Gate.io": {
+        "USDT": 6.5,
+        "USDC": 6.66,
+        "FDUSD": 2.38
+      },
+      "Bitfinex": {
+        "USDT": 2.06,
+        "USDC": 5.6,
+        "FDUSD": 2.1
+      },
+      "Huobi": {
+        "USDT": 3.22,
+        "USDC": 7.9,
+        "FDUSD": 4.91
+      },
+      "Crypto.com": {
+        "USDT": 3.66,
+        "USDC": 4.88,
+        "FDUSD": 1.13
+      }
+    }
   }
 ]
