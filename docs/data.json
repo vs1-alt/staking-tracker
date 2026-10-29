@@ -1,60 +1,5 @@
 [
   {
-    "date": "2026-07-31",
-    "rates": {
-      "Binance": {
-        "USDT": null,
-        "USDC": null,
-        "FDUSD": null
-      },
-      "Kraken": {
-        "USDT": null,
-        "USDC": null,
-        "FDUSD": null
-      },
-      "KuCoin": {
-        "USDT": null,
-        "USDC": null,
-        "FDUSD": null
-      },
-      "Bybit": {
-        "USDT": null,
-        "USDC": null,
-        "FDUSD": null
-      },
-      "OKX": {
-        "USDT": null,
-        "USDC": null,
-        "FDUSD": null
-      },
-      "Coinbase": {
-        "USDT": 5.82,
-        "USDC": 4.85,
-        "FDUSD": 3.53
-      },
-      "Gate.io": {
-        "USDT": 7.24,
-        "USDC": 3.9,
-        "FDUSD": 4.45
-      },
-      "Bitfinex": {
-        "USDT": 4.42,
-        "USDC": 4.29,
-        "FDUSD": 4.75
-      },
-      "Huobi": {
-        "USDT": 4.89,
-        "USDC": 5.99,
-        "FDUSD": 2.44
-      },
-      "Crypto.com": {
-        "USDT": 4.22,
-        "USDC": 6.27,
-        "FDUSD": 3.65
-      }
-    }
-  },
-  {
     "date": "2026-08-01",
     "rates": {
       "Binance": {
@@ -4946,6 +4891,61 @@
         "USDT": 2.45,
         "USDC": 4.35,
         "FDUSD": 3.21
+      }
+    }
+  },
+  {
+    "date": "2026-10-29",
+    "rates": {
+      "Binance": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "Kraken": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "KuCoin": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "Bybit": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "OKX": {
+        "USDT": null,
+        "USDC": null,
+        "FDUSD": null
+      },
+      "Coinbase": {
+        "USDT": 6.31,
+        "USDC": 5.59,
+        "FDUSD": 1.12
+      },
+      "Gate.io": {
+        "USDT": 2.99,
+        "USDC": 2.29,
+        "FDUSD": 3.23
+      },
+      "Bitfinex": {
+        "USDT": 6.57,
+        "USDC": 5.53,
+        "FDUSD": 1.5
+      },
+      "Huobi": {
+        "USDT": 4.41,
+        "USDC": 5.88,
+        "FDUSD": 4.79
+      },
+      "Crypto.com": {
+        "USDT": 7.27,
+        "USDC": 4.67,
+        "FDUSD": 3.8
       }
     }
   }
